@@ -10,26 +10,80 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <link href="https://fonts.googleapis.com/css?family=Poly" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="style.css">
         <script src="https://use.fontawesome.com/f4cb077b29.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script>
-        
-            if(navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                $("#data").html("latitude: " + position.coords.latitude 
-                        + "<br>longitude: " + position.coords.longitude);
-                });
-            }
-    </script>
+            $(document).ready(function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        var apikey = "";
+                        var link = "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&APPID="+//YOUR_API_KEY_HERE;
+
+                        $.getJSON(link + "&appid=" + apikey, function(json) {   
+                            var iconCode = json.weather[0].icon +".png";
+                            var iconUrl = "http://openweathermap.org/img/w/" + iconCode;
+                            var city = json.name;
+                            var temp = json.main.temp; //unit is kelvin
+                            var description = json.weather[0].description;
+                            var celcius = {
+                                actual: Math.floor(temp - 273.15)
+                            };
+                            var farenheight = {
+                                actual: Math.floor(9 / 5 * celcius.actual + 32)
+                            };
+                        
+                            // show in page
+                            $(".icon").html("<img src='" + iconUrl  + "'>"); // icon
+                            $(".city").html(city); // city name
+                            $(".description").html(description); // weather description
+                            $(".temp").html(celcius.actual + " °C"); // weather actually
+
+                            // buttons converter celsius to farenheight
+                            $('.cCon').on('click', function() {
+                                $('.temp').html(celcius.actual + " °C");
+                            });
+
+                            $('.fCon').on('click', function() {
+                                $('.temp').html(farenheight.actual + " °F");
+                            });
+
+                        });
+                    });
+                } else {
+
+                }
+             
+            });
+        </script>
     </head>
-    <body>
+    <body class="meteo-container">
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <div id = "data">
-            <h4>You are here:</h4>
+        <div class="container-fluid">
+            <h1 class = 'text-center header'> Local Weather Application </h1>
+            <hr>
+            <div class = 'row text-center meteo'>
+                <span class = 'icon'></span>
+                <span class = 'temp'></span><br>
+                <span class = 'city'></span><br>
+                <span class = 'description'></span>
+            </div>
+            <hr>
+            <div class = 'row text-center'>
+                    <a class = 'btn cCon btn-info'>
+                        Convert to °C
+                    </a>
+                    <a class = 'btn fCon btn-danger'>
+                        Convert to °F
+                    </a>
+                </div>
         </div>
     </body>
+    
 </html>
